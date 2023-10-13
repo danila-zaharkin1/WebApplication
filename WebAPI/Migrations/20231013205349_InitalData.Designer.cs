@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20231013180034_InitialData")]
-    partial class InitialData
+    [Migration("20231013205349_InitalData")]
+    partial class InitalData
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,56 @@ namespace WebAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("Entities.Models.Command", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("CommandId");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CommandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommandId");
+
+                    b.ToTable("Commands", t =>
+                        {
+                            t.Property("CommandId")
+                                .HasColumnName("CommandId1");
+                        });
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("1ac59c05-7f72-45f5-bb5a-d2006998d3e7"),
+                            City = "Saransk",
+                            Country = "Russia",
+                            Name = "Mordovia"
+                        },
+                        new
+                        {
+                            Id = new Guid("d960d5e1-a23e-4052-8d41-2cd31c6a9bda"),
+                            City = "Moscow",
+                            Country = "Russia",
+                            Name = "Amkal"
+                        });
+                });
 
             modelBuilder.Entity("Entities.Models.Company", b =>
                 {
@@ -123,6 +173,69 @@ namespace WebAPI.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Entities.Models.Player", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("PlayerId");
+
+                    b.Property<int>("Age")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CommandId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommandId");
+
+                    b.ToTable("Players");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a68fcbca-7f58-45e6-a1f9-aea8d263764e"),
+                            Age = 20,
+                            CommandId = new Guid("1ac59c05-7f72-45f5-bb5a-d2006998d3e7"),
+                            Name = "Nikita Shirmankin",
+                            Position = "Center forward"
+                        },
+                        new
+                        {
+                            Id = new Guid("c53068cb-27ab-4f3f-832e-b93f5f04e263"),
+                            Age = 19,
+                            CommandId = new Guid("d960d5e1-a23e-4052-8d41-2cd31c6a9bda"),
+                            Name = "Denis Ivanov",
+                            Position = "Halfback"
+                        },
+                        new
+                        {
+                            Id = new Guid("92674f7a-31f0-4a51-9331-74e82ab980c1"),
+                            Age = 25,
+                            CommandId = new Guid("1ac59c05-7f72-45f5-bb5a-d2006998d3e7"),
+                            Name = "Andrey Zubanov",
+                            Position = "Goalkeeper"
+                        });
+                });
+
+            modelBuilder.Entity("Entities.Models.Command", b =>
+                {
+                    b.HasOne("Entities.Models.Command", null)
+                        .WithMany("Commands")
+                        .HasForeignKey("CommandId");
+                });
+
             modelBuilder.Entity("Entities.Models.Employee", b =>
                 {
                     b.HasOne("Entities.Models.Company", "Company")
@@ -132,6 +245,22 @@ namespace WebAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Company");
+                });
+
+            modelBuilder.Entity("Entities.Models.Player", b =>
+                {
+                    b.HasOne("Entities.Models.Command", "Command")
+                        .WithMany()
+                        .HasForeignKey("CommandId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Command");
+                });
+
+            modelBuilder.Entity("Entities.Models.Command", b =>
+                {
+                    b.Navigation("Commands");
                 });
 
             modelBuilder.Entity("Entities.Models.Company", b =>
